@@ -18,6 +18,7 @@
  */
 package org.nuxeo.apidoc.adapters;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.nuxeo.apidoc.api.NuxeoArtifact;
 import org.nuxeo.apidoc.api.QueryHelper;
 import org.nuxeo.apidoc.snapshot.DistributionSnapshot;
 import org.nuxeo.common.utils.Path;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
@@ -49,6 +51,7 @@ public class BundleGroupDocAdapter extends BaseNuxeoArtifactDocAdapter implement
         doc.setPropertyValue(NuxeoArtifact.TITLE_PROPERTY_PATH, bundleGroup.getName());
         doc.setPropertyValue(PROP_GROUP_NAME, bundleGroup.getName());
         doc.setPropertyValue(PROP_KEY, bundleGroup.getId());
+        doc.setPropertyValue(PROP_READMES, (Serializable) bundleGroup.getReadmes());
         if (exist) {
             doc = session.saveDocument(doc);
         } else {
@@ -106,7 +109,6 @@ public class BundleGroupDocAdapter extends BaseNuxeoArtifactDocAdapter implement
     @Override
     public String getVersion() {
         DistributionSnapshot parentSnapshot = getParentNuxeoArtifact(DistributionSnapshot.class);
-
         if (parentSnapshot == null) {
             log.error("Unable to determine version for bundleGroup " + getId());
             return "?";
@@ -122,6 +124,11 @@ public class BundleGroupDocAdapter extends BaseNuxeoArtifactDocAdapter implement
     @Override
     public List<String> getParentIds() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Blob> getReadmes() {
+        return safeGet(PROP_READMES, null);
     }
 
 }

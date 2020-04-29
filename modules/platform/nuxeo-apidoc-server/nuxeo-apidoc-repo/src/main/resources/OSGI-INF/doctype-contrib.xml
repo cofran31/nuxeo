@@ -25,6 +25,7 @@
       <schema name="common" />
       <schema name="dublincore" />
       <schema name="file" />
+      <schema name="files" />
       <schema name="nxbundlegroup" />
 
       <facet name="Commentable" />
@@ -109,16 +110,6 @@
       <schema name="file" />
 
       <schema name="nxoperation" />
-      <facet name="Commentable" />
-      <facet name="Versionable" />
-    </doctype>
-
-    <doctype name="NXDocumentation" extends="Document">
-      <schema name="common" />
-      <schema name="dublincore" />
-      <schema name="file" />
-      <schema name="files" />
-      <schema name="nxdocumentation" />
       <facet name="Commentable" />
       <facet name="Versionable" />
     </doctype>

@@ -21,17 +21,13 @@ package org.nuxeo.apidoc.introspection;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.nuxeo.apidoc.api.BaseNuxeoArtifact;
 import org.nuxeo.apidoc.api.BundleGroup;
 import org.nuxeo.apidoc.api.BundleInfo;
 import org.nuxeo.apidoc.api.ComponentInfo;
-import org.nuxeo.apidoc.documentation.AssociatedDocumentsImpl;
-import org.nuxeo.apidoc.documentation.ResourceDocumentationItem;
-import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.Blob;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -56,19 +52,17 @@ public class BundleInfoImpl extends BaseNuxeoArtifact implements BundleInfo {
 
     protected BundleGroup bundleGroup;
 
-    protected Map<String, ResourceDocumentationItem> liveDoc;
+    protected Blob readme;
 
-    protected Map<String, ResourceDocumentationItem> parentLiveDoc;
+    protected Blob parentReadme;
 
     @JsonCreator
     private BundleInfoImpl(@JsonProperty("bundleId") String bundleId, @JsonProperty("fileName") String fileName,
             @JsonProperty("manifest") String manifest, @JsonProperty("requirements") List<String> requirements,
             @JsonProperty("groupId") String groupId, @JsonProperty("artifactId") String artifactId,
             @JsonProperty("artifactVersion") String artifactVersion,
-            @JsonProperty("bundleGroup") BundleGroup bundleGroup,
-            @JsonProperty("liveDoc") Map<String, ResourceDocumentationItem> liveDoc,
-            @JsonProperty("parentLiveDoc") Map<String, ResourceDocumentationItem> parentLiveDoc,
-            @JsonProperty("location") String location) {
+            @JsonProperty("bundleGroup") BundleGroup bundleGroup, @JsonProperty("liveDoc") Blob doc,
+            @JsonProperty("parentDoc") Blob parentDoc, @JsonProperty("location") String location) {
         this.bundleId = bundleId;
         this.fileName = fileName;
         this.manifest = manifest;
@@ -79,8 +73,8 @@ public class BundleInfoImpl extends BaseNuxeoArtifact implements BundleInfo {
         this.artifactId = artifactId;
         this.artifactVersion = artifactVersion;
         this.bundleGroup = bundleGroup;
-        this.liveDoc = liveDoc;
-        this.parentLiveDoc = parentLiveDoc;
+        this.readme = doc;
+        this.parentReadme = parentDoc;
         this.location = location;
         // components will be handled by json managed reference
     }
@@ -199,45 +193,22 @@ public class BundleInfoImpl extends BaseNuxeoArtifact implements BundleInfo {
         return getBundleGroup().getHierarchyPath() + "/" + getId();
     }
 
-    public void setLiveDoc(Map<String, ResourceDocumentationItem> liveDoc) {
-        this.liveDoc = liveDoc;
-    }
-
-    public void setParentLiveDoc(Map<String, ResourceDocumentationItem> parentLiveDoc) {
-        this.parentLiveDoc = parentLiveDoc;
-    }
-
-    protected Map<String, ResourceDocumentationItem> getMergedDocumentation() {
-
-        Map<String, ResourceDocumentationItem> merged = parentLiveDoc;
-        if (merged == null) {
-            merged = new HashMap<>();
-        }
-        if (liveDoc != null) {
-            for (String key : liveDoc.keySet()) {
-                if (liveDoc.get(key) != null) {
-                    merged.put(key, liveDoc.get(key));
-                }
-            }
-        }
-        return merged;
+    @Override
+    public Blob getReadme() {
+        return readme;
     }
 
     @Override
-    public AssociatedDocumentsImpl getAssociatedDocuments(CoreSession session) {
-        AssociatedDocumentsImpl docs = super.getAssociatedDocuments(session);
-        docs.setLiveDoc(getMergedDocumentation());
-        return docs;
+    public Blob getParentReadme() {
+        return parentReadme;
     }
 
-    @Override
-    public Map<String, ResourceDocumentationItem> getLiveDoc() {
-        return liveDoc;
+    public void setReadme(Blob readme) {
+        this.readme = readme;
     }
 
-    @Override
-    public Map<String, ResourceDocumentationItem> getParentLiveDoc() {
-        return parentLiveDoc;
+    public void setParentReadme(Blob parentReadme) {
+        this.parentReadme = parentReadme;
     }
 
 }

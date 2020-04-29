@@ -22,15 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
-import org.nuxeo.apidoc.documentation.DefaultDocumentationType;
-import org.nuxeo.apidoc.documentation.ResourceDocumentationItem;
 import org.nuxeo.common.utils.Path;
+import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 
 public class EmbeddedDocExtractor {
 
@@ -39,47 +37,40 @@ public class EmbeddedDocExtractor {
     public static final String PARENT_DOC_PREFIX = "doc-parent/";
 
     public static void extractEmbeddedDoc(ZipFile jarFile, BundleInfoImpl bi) throws IOException {
-
         Enumeration<? extends ZipEntry> entries = jarFile.entries();
-
-        Map<String, ResourceDocumentationItem> localDocs = new HashMap<>();
-        Map<String, ResourceDocumentationItem> parentDocs = new HashMap<>();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-
-            try (InputStream is = jarFile.getInputStream(entry)) {
-                if (entry.getName().startsWith(PARENT_DOC_PREFIX) && !entry.isDirectory()) {
-                    String content = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    String name = new Path(entry.getName()).lastSegment();
-                    if (name.length() >= 6 && name.substring(0, 6).equalsIgnoreCase("readme")) {
-
-                        ResourceDocumentationItem docItem = new ResourceDocumentationItem(name, content,
-                                DefaultDocumentationType.DESCRIPTION.toString(), bi);
-
-                        parentDocs.put(DefaultDocumentationType.DESCRIPTION.toString(), docItem);
-                    } else {
-                        ResourceDocumentationItem docItem = new ResourceDocumentationItem(name, content,
-                                DefaultDocumentationType.HOW_TO.toString(), bi);
-                        parentDocs.put(DefaultDocumentationType.HOW_TO.toString(), docItem);
-                    }
-                }
-                if (entry.getName().startsWith(DOC_PREFIX) && !entry.isDirectory()) {
-                    String content = IOUtils.toString(is, StandardCharsets.UTF_8);
-                    String name = new Path(entry.getName()).lastSegment();
-                    if (name.length() >= 6 && name.substring(0, 6).equalsIgnoreCase("readme")) {
-
-                        ResourceDocumentationItem docItem = new ResourceDocumentationItem(name, content,
-                                DefaultDocumentationType.DESCRIPTION.toString(), bi);
-                        localDocs.put(DefaultDocumentationType.DESCRIPTION.toString(), docItem);
-                    } else {
-                        ResourceDocumentationItem docItem = new ResourceDocumentationItem(name, content,
-                                DefaultDocumentationType.HOW_TO.toString(), bi);
-                        localDocs.put(DefaultDocumentationType.HOW_TO.toString(), docItem);
-                    }
-                }
+            if (isReadme(entry.getName(), true)) {
+                bi.setReadme(getReadme(jarFile, entry));
+            } else if (isReadme(entry.getName(), false)) {
+                bi.setParentReadme(getReadme(jarFile, entry));
+            }
+            if (bi.getReadme() != null && bi.getParentReadme() != null) {
+                break;
             }
         }
-        bi.setLiveDoc(localDocs);
-        bi.setParentLiveDoc(parentDocs);
     }
+
+    protected static boolean isReadme(String name, boolean local) {
+        boolean isDoc = local ? name.startsWith(DOC_PREFIX) : name.startsWith(PARENT_DOC_PREFIX);
+        if (isDoc) {
+            String filename = new Path(name).lastSegment();
+            if (filename.length() >= 6 && filename.substring(0, 6).equalsIgnoreCase("readme")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected static Blob getReadme(ZipFile jarFile, ZipEntry entry) throws IOException {
+        try (InputStream is = jarFile.getInputStream(entry)) {
+            if (!entry.isDirectory()) {
+                String name = new Path(entry.getName()).lastSegment();
+                String content = IOUtils.toString(is, StandardCharsets.UTF_8);
+                return new StringBlob(content, null, StandardCharsets.UTF_8.name(), name);
+            }
+        }
+        return null;
+    }
+
 }

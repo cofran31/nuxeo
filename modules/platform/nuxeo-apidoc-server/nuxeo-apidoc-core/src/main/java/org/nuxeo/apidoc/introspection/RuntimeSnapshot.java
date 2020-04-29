@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.apidoc.api.BaseNuxeoArtifact;
 import org.nuxeo.apidoc.api.BundleGroup;
 import org.nuxeo.apidoc.api.BundleGroupFlatTree;
@@ -66,6 +68,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class RuntimeSnapshot extends BaseNuxeoArtifact implements DistributionSnapshot {
+
+    private static final Log log = LogFactory.getLog(RuntimeSnapshot.class);
 
     public static final String VIRTUAL_BUNDLE_GROUP = "grp:org.nuxeo.misc";
 
@@ -254,7 +258,11 @@ public class RuntimeSnapshot extends BaseNuxeoArtifact implements DistributionSn
                 if (bi instanceof BundleInfoImpl) {
                     ((BundleInfoImpl) bi).setBundleGroup(bGroup);
                 }
-                bGroup.addLiveDoc(bi.getParentLiveDoc());
+                try {
+                    bGroup.addReadme(bi.getParentReadme());
+                } catch (IOException e) {
+                    log.error("Error setting readme on bundle group", e);
+                }
             }
         }
         return bGroup;
@@ -500,7 +508,7 @@ public class RuntimeSnapshot extends BaseNuxeoArtifact implements DistributionSn
             }
 
             String finalId = id;
-            Optional<String> first = Arrays.stream(op.getAliases()).filter(s -> s.equals(finalId)).findFirst();
+            Optional<String> first = op.getAliases().stream().filter(s -> s.equals(finalId)).findFirst();
             if (first.isPresent()) {
                 return op;
             }

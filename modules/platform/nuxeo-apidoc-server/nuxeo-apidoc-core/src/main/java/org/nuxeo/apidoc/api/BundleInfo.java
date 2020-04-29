@@ -20,9 +20,8 @@
 package org.nuxeo.apidoc.api;
 
 import java.util.List;
-import java.util.Map;
 
-import org.nuxeo.apidoc.documentation.ResourceDocumentationItem;
+import org.nuxeo.ecm.core.api.Blob;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -39,6 +38,16 @@ public interface BundleInfo extends NuxeoArtifact {
     String PROP_BUNDLE_ID = "nxbundle:bundleId";
 
     String PROP_JAR_NAME = "nxbundle:jarName";
+
+    /**
+     * @since 11.1
+     */
+    String PROP_README = "nxbundle:readme";
+
+    /**
+     * @since 11.1
+     */
+    String PROP_PARENT_README = "nxbundle:parentReadme";
 
     /**
      * @since 11.1
@@ -72,8 +81,14 @@ public interface BundleInfo extends NuxeoArtifact {
 
     String getArtifactVersion();
 
-    Map<String, ResourceDocumentationItem> getLiveDoc();
+    /**
+     * @since 11.1
+     */
+    Blob getReadme();
 
-    Map<String, ResourceDocumentationItem> getParentLiveDoc();
+    /**
+     * @since 11.1
+     */
+    Blob getParentReadme();
 
 }

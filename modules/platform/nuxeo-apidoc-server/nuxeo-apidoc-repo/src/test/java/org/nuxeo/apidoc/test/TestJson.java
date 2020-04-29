@@ -139,7 +139,7 @@ public class TestJson {
         assertEquals("org.nuxeo.ecm.platform", bundle.getGroupId());
         assertEquals("/grp:org.nuxeo.ecm.platform/org.nuxeo.apidoc.repo", bundle.getHierarchyPath());
         assertEquals("org.nuxeo.apidoc.repo", bundle.getId());
-        assertNull(bundle.getLiveDoc());
+        assertNull(bundle.getReadme());
         assertEquals("Manifest-Version: 1.0\n" //
                 + "Bundle-ManifestVersion: 1\n" //
                 + "Bundle-Name: nuxeo api documentation repository\n" //
@@ -154,7 +154,7 @@ public class TestJson {
                 + "  OSGI-INF/directories-contrib.xml,\n" //
                 + "  OSGI-INF/listener-contrib.xml\n"//
                 + "", bundle.getManifest());
-        assertNull(bundle.getParentLiveDoc());
+        assertNull(bundle.getParentReadme());
         assertEquals(Collections.emptyList(), bundle.getRequirements());
         assertEquals(version, bundle.getVersion());
 

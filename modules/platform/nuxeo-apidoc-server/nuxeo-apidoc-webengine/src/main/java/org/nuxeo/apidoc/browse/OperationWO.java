@@ -20,6 +20,8 @@ package org.nuxeo.apidoc.browse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Produces;
 
@@ -48,44 +50,24 @@ public class OperationWO extends NuxeoArtifactWebObject {
         return getTargetComponentInfo();
     }
 
-    protected String[] getInputs(OperationInfo op) {
-        String[] signature = op.getSignature();
-        if (signature == null || signature.length == 0) {
-            return new String[0];
+    protected String getSignatureInfo(OperationInfo op, boolean isInput) {
+        List<String> signature = op.getSignature();
+        if (signature == null || signature.isEmpty()) {
+            return "void";
         }
-        String[] result = new String[signature.length / 2];
-        for (int i = 0, k = 0; i < signature.length; i += 2, k++) {
-            result[k] = signature[i];
+        List<String> result = new ArrayList<>();
+        for (int i = (isInput ? 0 : 1); i < signature.size(); i += 2) {
+            result.add(signature.get(i));
         }
-        return result;
-    }
-
-    protected String[] getOutputs(OperationInfo op) {
-        String[] signature = op.getSignature();
-        if (signature == null || signature.length == 0) {
-            return new String[0];
-        }
-        String[] result = new String[signature.length / 2];
-        for (int i = 1, k = 0; i < signature.length; i += 2, k++) {
-            result[k] = signature[i];
-        }
-        return result;
+        return StringUtils.join(result, ", ");
     }
 
     public String getInputsAsString(OperationInfo op) {
-        String[] result = getInputs(op);
-        if (result == null || result.length == 0) {
-            return "void";
-        }
-        return StringUtils.join(result, ", ");
+        return getSignatureInfo(op, true);
     }
 
     public String getOutputsAsString(OperationInfo op) {
-        String[] result = getOutputs(op);
-        if (result == null || result.length == 0) {
-            return "void";
-        }
-        return StringUtils.join(result, ", ");
+        return getSignatureInfo(op, false);
     }
 
     public String getParamDefaultValue(Param param) {

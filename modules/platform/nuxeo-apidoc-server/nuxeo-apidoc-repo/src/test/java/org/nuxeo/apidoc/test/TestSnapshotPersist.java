@@ -210,7 +210,7 @@ public class TestSnapshotPersist {
                                                   .replace("target/test-classes", "src/test/resources")
                                                   .replace("target/classes", "src/main/resources");
                 org.apache.commons.io.FileUtils.copyInputStreamToFile(
-                        new ByteArrayInputStream(actualContent.getBytes()), new File(resourcePath));
+                        new ByteArrayInputStream((actualContent + "\n").getBytes()), new File(resourcePath));
             }
             throw e;
         }
