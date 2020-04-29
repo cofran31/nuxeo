@@ -349,6 +349,11 @@ pipeline {
               envsubst < \$valuesFile > \$valuesFile~gen
             done
           """
+          // output pod description
+          echo "Describe pod ${NODE_NAME}"
+          sh """
+            kubectl describe pod ${NODE_NAME}
+          """
         }
       }
     }
