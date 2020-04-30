@@ -211,6 +211,7 @@ public interface DistributionSnapshot extends DistributionSnapshotDesc {
                                   .addAbstractTypeMapping(ServiceInfo.class, ServiceInfoImpl.class));
         mapper.addMixIn(OperationDocumentation.Param.class, OperationDocParamMixin.class);
         mapper.addMixIn(ComponentName.class, ComponentNameMixin.class);
+        // TODO: handle blob readmes
         return mapper;
     }
 

@@ -107,4 +107,6 @@ public class ITExplorerSimpleTest extends AbstractExplorerTest {
         checkBundles();
     }
 
+    // TODO: check bundle groups
+
 }

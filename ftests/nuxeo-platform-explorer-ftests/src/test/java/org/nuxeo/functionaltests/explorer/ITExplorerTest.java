@@ -219,4 +219,6 @@ public class ITExplorerTest extends AbstractExplorerTest {
         switchBackToPreviousWindow();
     }
 
+    // TODO: check bundle groups
+
 }

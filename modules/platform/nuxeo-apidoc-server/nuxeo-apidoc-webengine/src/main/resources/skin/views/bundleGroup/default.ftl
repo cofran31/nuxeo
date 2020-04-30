@@ -11,6 +11,7 @@
 <div class="tabscontent">
 
   <h2>Documentation</h2>
+  TODO
 
   <#if nxItem.subGroups?size gt 0>
   <h2>Bundle subgroups</h2>

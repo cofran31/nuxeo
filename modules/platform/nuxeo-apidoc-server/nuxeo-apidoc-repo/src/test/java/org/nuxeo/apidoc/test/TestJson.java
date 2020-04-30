@@ -105,6 +105,7 @@ public class TestJson {
      */
     @Test
     public void canReadLegacy() throws IOException {
+        // TODO: udpate to include readmes
         RuntimeSnapshot runtimeSnapshot = RuntimeSnapshot.build();
         String export = TestSnapshotPersist.getReferenceContent(
                 TestSnapshotPersist.getReferencePath("test-export.json"));
@@ -134,6 +135,8 @@ public class TestJson {
             assertNotNull(version);
             assertTrue(version.trim().length() > 0);
         }
+
+        // TODO: check readmes
 
         assertEquals("org.nuxeo.apidoc.repo", bundle.getBundleId());
         assertEquals("org.nuxeo.ecm.platform", bundle.getGroupId());
