@@ -197,7 +197,7 @@ public class Distribution extends ModuleRoot {
         if ("adm".equals(distributionId)) {
             embeddedMode = Boolean.TRUE;
         } else {
-            snaps.add(getSnapshotManager().getRuntimeSnapshot());
+            snaps.add(getRuntimeDistribution());
             distributionId = SnapshotResolverHelper.findBestMatch(snaps, distributionId);
         }
         if (distributionId == null || "".equals(distributionId)) {
@@ -382,9 +382,7 @@ public class Distribution extends ModuleRoot {
     @Path("json")
     @Produces("application/json")
     public Object getJson() throws IOException {
-        // init potential resources depending on request
-        getSnapshotManager().initWebContext(getContext().getRequest());
-        DistributionSnapshot snap = getSnapshotManager().getRuntimeSnapshot();
+        DistributionSnapshot snap = getRuntimeDistribution();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         snap.writeJson(out);
         return out.toString();
