@@ -85,7 +85,7 @@ String getDockerTagFrom(String version) {
 
 void runFunctionalTests(String baseDir) {
   try {
-    sh "mvn ${MAVEN_ARGS} -f ${baseDir}/pom.xml verify"
+    sh "mvn ${MAVEN_ARGS} -Dnuxeo.skip.enforcer=true -f ${baseDir}/pom.xml verify"
   } finally {
     try {
       archiveArtifacts allowEmptyArchive: true, artifacts: "${baseDir}/**/target/failsafe-reports/*, ${baseDir}/**/target/**/*.log, ${baseDir}/**/target/*.png, ${baseDir}/**/target/**/distribution.properties, ${baseDir}/**/target/**/configuration.properties"
@@ -250,6 +250,7 @@ def buildUnitTestStage(env) {
                 -Dcustom.environment.log.dir=target-${env} \
                 -Dnuxeo.test.core=${testCore} \
                 -Dnuxeo.test.redis.host=${redisHost} \
+                -Dnuxeo.skip.enforcer=true \
                 ${kafkaOptions} \
                 test
             """
@@ -411,7 +412,7 @@ pipeline {
           Compile
           ----------------------------------------"""
           echo "MAVEN_OPTS=$MAVEN_OPTS"
-          sh "mvn ${MAVEN_ARGS} -V -T4C -DskipTests install"
+          sh "mvn ${MAVEN_ARGS} -Dnuxeo.skip.enforcer=true -V -T4C -DskipTests install"
         }
       }
       post {
@@ -463,6 +464,7 @@ pipeline {
                   mvn ${MAVEN_ARGS} \
                     -Dnuxeo.test.redis.host=${redisHost} \
                     -Pkafka -Dkafka.bootstrap.servers=${kafkaHost} \
+                    -Dnuxeo.skip.enforcer=true \
                     test
                 """
               }
@@ -563,7 +565,7 @@ pipeline {
           """
           echo "Build and push Docker images to internal Docker registry ${DOCKER_REGISTRY}"
           // Fetch Nuxeo Tomcat Server and Nuxeo Content Platform packages with Maven
-          sh "mvn ${MAVEN_ARGS} -T4C -f docker/pom.xml process-resources"
+          sh "mvn ${MAVEN_ARGS} -T4C -Dnuxeo.skip.enforcer=true -f docker/pom.xml process-resources"
           skaffoldBuild('docker/skaffold.yaml')
         }
       }
@@ -656,7 +658,7 @@ pipeline {
           ----------------------------------------
           Deploy Maven artifacts
           ----------------------------------------"""
-          sh "mvn ${MAVEN_ARGS} -Pdistrib -DskipTests deploy"
+          sh "mvn ${MAVEN_ARGS} -Dnuxeo.skip.enforcer=true -Pdistrib -DskipTests deploy"
         }
       }
       post {
