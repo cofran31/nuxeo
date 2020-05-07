@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -36,6 +37,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.automation.client.Constants;
@@ -158,7 +160,7 @@ public class AsyncOperationAdapterTest {
             fail("expected error");
         } catch (RemoteException e) {
             assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getStatus());
-            assertEquals("Failed to invoke operation Test.Exit", e.getMessage());
+            assertEquals("termination error", e.getMessage());
         }
     }
 
@@ -196,6 +198,25 @@ public class AsyncOperationAdapterTest {
         folder = (Document) session.newRequest(FetchDocument.ID).set("value", "/test").execute();
 
         assertEquals("foo", folder.getTitle());
+    }
+
+    @Test
+    public void testFailingBulkAction() throws Exception {
+        try {
+            async.newRequest(BulkRunAction.ID) //
+                 .set("action", AutomationBulkAction.ACTION_NAME)
+                 .set("query", "SELECT * FROM Folder")
+                 .set("bucketSize", "10")
+                 .set("batchSize", "5")
+                 .set("parameters", (new ObjectMapper()).writeValueAsString("{}"))
+                 .execute();
+            fail("expected error");
+        } catch (RemoteException e) {
+            assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getStatus());
+            assertTrue(
+                    e.getMessage()
+                     .startsWith("Unknown operation id null in command: org.nuxeo.ecm.core.bulk.message.BulkCommand"));
+        }
     }
 
     /**
